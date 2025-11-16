@@ -16,12 +16,22 @@ Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kagg
 
 
 ## Pre-Quantisation
+
 **Metric**
+
 ![Metrics](./assets/metrics.png)
+
+**Confusion Matrix**
+
+![Confusion Matrix](./assets/confusion_matrix.png)
+
 
 ## After-Quantisation
 
+TODO
+
 ## Testing
+
 - High Accuracy ViT Base Model
 - Mid Accuracy ViT Base Model
 - Overfitted ViT Base Model
@@ -30,6 +40,7 @@ Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kagg
 - UMAP feature space base model vs quantised model comparision
 
 ## TODO
+
 - [x] Evaluation Script
 - [x] Inference Script
 - [x] Plot Loss
@@ -39,3 +50,4 @@ Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kagg
 - [x] Refactor Code
 - [x] Save model parameters during training in txt file
 - [ ] Measure model size, speedup, ...
+- [ ] Fix class imbalance, black borders in images
