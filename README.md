@@ -2,15 +2,23 @@
 
 Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kaggle.com/datasets/ascanipek/eyepacs-aptos-messidor-diabetic-retinopathy). The model is pretrained on Imagenet and then finetuned. 
 
+**Class Distribution** (class imbalance)
+
+![Class Distribution](./assets/class_distribution.png)
+
 **Loss**
 
 ![Loss Function](./assets/loss_epoch.png)
+
+**Weight Distribution**
 
 ![Weight Distribution](./assets/vit_layer_comparison.gif)
 
 
 ## Pre-Quantisation
-### Metrics
+**Metric**
+![Metrics](./assets/metrics.png)
+
 ## After-Quantisation
 
 ## Testing
@@ -19,16 +27,15 @@ Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kagg
 - Overfitted ViT Base Model
 - Check if quantisation has regularisation effect on overfitted Model
 - Check how accuracy drops compared to high/mid accuracy models
-- UMAP feature space base model vs quantised model comaprision
+- UMAP feature space base model vs quantised model comparision
 
 ## TODO
-- [ ] Evaluation Script
-- [ ] Inference Script
+- [x] Evaluation Script
+- [x] Inference Script
 - [x] Plot Loss
 - [x] Validation Loop
 - [ ] Quantisation 
 - [ ] Test Quantisation
 - [x] Refactor Code
 - [x] Save model parameters during training in txt file
-- [x] Download 2. dataset (https://www.kaggle.com/datasets/ascanipek/eyepacs-aptos-messidor-diabetic-retinopathy)
 - [ ] Measure model size, speedup, ...
