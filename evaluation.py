@@ -10,111 +10,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from math import pi
 
-from src.dataset.dataset import RetinopathyAptosDataset, RetinopathyFullDataset, CIFAR100Dataset
-from src.model.vit import VisionTransformer
-from src.eval import plot_loss, animate_weight_distr
+from src.dataset.dataset import RetinopathyAptosDataset, RetinopathyFullDataset, CIFAR100Dataset, load_dataset
+from src.model.vit import VisionTransformer, load_model
+from src.eval import plot_loss, animate_weight_distr, plot_classes, plot_metrics, plot_cm
 from src.dataset.augmentations import get_augmentations
 
 
-def load_model(params_path, ckpt_path, device):
-    with open(params_path, 'r') as f:
-        p = json.load(f)
-
-    # Load Model
-    model = VisionTransformer(in_channels=p['in_channels'],
-                              image_size=p['image_size'],
-                              patch_size=p['patch_size'],
-                              number_of_encoder=p['number_of_encoder'],
-                              embeddings=p['embeddings'],
-                              d_ff_scale=p['d_ff_scale'],
-                              num_heads=p['num_heads'],
-                              input_dropout_rate=p['input_dropout_rate'],
-                              attention_dropout_rate=p['attention_dropout_rate'],
-                              feed_forward_dropout_rate=p['feed_forward_dropout_rate'],
-                              number_of_classes=p['number_of_classes']
-                             )
-
-    # Load weights and loss dict
-    checkpoint = torch.load(ckpt_path, map_location=device)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    loss_dict = checkpoint.get('loss_dict', {})
-
-    model.to(device)
-    model.eval()
-    return model, loss_dict
 
 
-def load_dataset(data_root):
-    _, val_transform = get_augmentations(image_size=224)
-    if 'retinopathy' in data_root:
-        dataset_val = RetinopathyFullDataset(data_root, val_transform, mode='test')
-        print('[*] Dataset: Retinopathy')
-    elif 'cifar' in data_root:
-        dataset_val = CIFAR100Dataset(data_root, train_transform, mode='val')
-        print('[*] Dataset: CIFAR100')
-    else:
-        print('No Dataset given. Exit')
-        sys.exit()
 
-    test_dataloader = DataLoader(dataset_val, batch_size=1, shuffle=False)
-    return test_dataloader
-
-
-def plot_cm(cm, class_names):
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(cm,
-                annot=True,
-                fmt="d",
-                cmap="Blues",
-                xticklabels=class_names,
-                yticklabels=class_names,
-                annot_kws={"size": 12})  # larger numbers inside cells
-
-    plt.xlabel("Predicted", fontsize=14)
-    plt.ylabel("True", fontsize=14)
-    plt.title("Confusion Matrix", fontsize=16)
-
-    plt.xticks(rotation=45, ha="right", fontsize=12)  # rotate x-labels
-    plt.yticks(rotation=0, fontsize=12)               # keep y-labels horizontal
-
-    plt.tight_layout()
-    plt.savefig('confusion_matrix.png')
-
-
-def plot_metrics(acc, prec, rec, f1):
-    scores = {
-    "Accuracy": acc,
-    "Precision": prec,
-    "Recall": rec,
-    "F1": f1
-    }
-
-    plt.figure(figsize=(6,4))
-    plt.bar(scores.keys(), scores.values())
-    plt.ylabel("Score")
-    plt.ylim(0, 1)
-    plt.title("Overall Evaluation Metrics")
-    plt.savefig('./metrics.png')
-
-
-def plot_classes(labels_distr, class_names):
-    keys = [int(k) for k in labels_distr.keys()]
-    counts = [labels_distr[k] for k in labels_distr.keys()]
-
-    # Map class numbers → class names
-    classes = [class_names[k] for k in keys]
-
-    plt.figure(figsize=(10,5))
-    plt.bar(classes, counts)
-    plt.xlabel("Class")
-    plt.ylabel("Number of Images")
-    plt.title("Image Distribution per Class")
-    plt.xticks(rotation=30)
-    plt.tight_layout()
-    plt.savefig('class_distribution.png')
-
-
-if __name__ == '__main__':
+def main():
     class_names = ['No DR', 'Mild', 'Moderate', 'Severe', 'Proliferative DR']
 
     root = './runs/run7_retino_224/'
@@ -186,3 +91,7 @@ if __name__ == '__main__':
     print("Precision:", prec)
     print("Recall:", rec)
     print("F1:", f1)
+
+
+if __name__ == '__main__':
+    main()

@@ -2,9 +2,10 @@ import os
 import glob
 import pandas as pd
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 from torchvision.transforms import v2
+from src.dataset.augmentations import get_augmentations
 
 
 class RetinopathyFullDataset(Dataset):
@@ -20,7 +21,8 @@ class RetinopathyFullDataset(Dataset):
             self.images = glob.glob(f'{data_root}/test/*/*.jpg')
         else:
             print('Wrong mode for dataset creation.')
-        self.to_tensor = v2.ToTensor()
+        #self.to_tensor = v2.ToTensor()
+        self.to_tensor = v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])
 
     def __len__(self):
         return len(self.images)
@@ -49,7 +51,8 @@ class RetinopathyAptosDataset(Dataset):
         else:
             self.csv = pd.read_csv(f'{data_root}/test.csv')
             self.images = glob.glob(f'{data_root}/test_images/*.png')
-        self.to_tensor = v2.ToTensor()
+        #self.to_tensor = v2.ToTensor()
+        self.to_tensor = v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])
 
 
     def __len__(self):
@@ -185,7 +188,8 @@ class CIFAR100Dataset(Dataset):
             self.images = glob.glob(f'{data_root}/val/*/*.png')
         else:
             print('Wrong mode for dataset')
-        self.to_tensor = v2.ToTensor()
+        #self.to_tensor = v2.ToTensor()
+        self.to_tensor = v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])
 
     def __len__(self):
         return len(self.images)
@@ -201,6 +205,21 @@ class CIFAR100Dataset(Dataset):
             image = self.to_tensor(image)
         return image, label
 
+
+def load_dataset(data_root):
+    _, val_transform = get_augmentations(image_size=224)
+    if 'retinopathy' in data_root:
+        dataset_val = RetinopathyFullDataset(data_root, val_transform, mode='test')
+        print('[*] Dataset: Retinopathy')
+    elif 'cifar' in data_root:
+        dataset_val = CIFAR100Dataset(data_root, train_transform, mode='val')
+        print('[*] Dataset: CIFAR100')
+    else:
+        print('No Dataset given. Exit')
+        sys.exit()
+
+    test_dataloader = DataLoader(dataset_val, batch_size=1, shuffle=False)
+    return test_dataloader
 
 
 if __name__ == '__main__':

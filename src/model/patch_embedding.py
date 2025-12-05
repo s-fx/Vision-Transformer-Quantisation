@@ -19,6 +19,10 @@ class PatchEmbedding(nn.Module):
         self.patch_size = patch_size
         self.embed_dim = embed_dim
         self.num_patches = (img_size // patch_size) ** 2
+
+        if img_size % patch_size != 0:
+            raise ValueError(f"img_size {img_size} is not divisible by patch_size {patch_size}")
+
         self.proj = nn.Conv2d(
             in_channels=img_channels,
             out_channels=embed_dim,
@@ -33,11 +37,8 @@ class PatchEmbedding(nn.Module):
         x: (B,C,H,W)
         returns: (B,num_patches,embed_dim)
         """
-        image_dimension = x.shape[-1]
-        assert image_dimension % self.patch_size == 0, \
-                f'Given image dimension {image_dimension} is not divisible by patch_size {patch_size}'
-        if len(x.shape) == 3:
-            x = x.unsqueeze(0) # add batch dim if input (C,H,W)
+        #if len(x.shape) == 3:
+        #    x = x.unsqueeze(0) # add batch dim if input (C,H,W)
 
         x = self.proj(x) # (B, embed_dim, H/patch, W/patch)
         x = x.flatten(2) # flatten height and width: (B, embed_dim, num_patches)

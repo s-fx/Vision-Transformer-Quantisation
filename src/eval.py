@@ -4,6 +4,8 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.animation import FuncAnimation, PillowWriter
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 
 def accuracy_fn(y_pred, y_true):
@@ -15,6 +17,7 @@ def accuracy_fn(y_pred, y_true):
     correct = (preds == y_true).sum().item()
     acc = correct / y_true.size(0)
     return acc
+
 
 def plot_loss(loss_dict, out_dir):
     if isinstance(loss_dict, str):
@@ -63,4 +66,58 @@ def animate_weight_distr(snapshots_path):
     plt.close(fig)
 
     print("[*] Saved side-by-side animation as vit_layer_comparison.gif")
+
+
+def plot_classes(labels_distr, class_names):
+    keys = [int(k) for k in labels_distr.keys()]
+    counts = [labels_distr[k] for k in labels_distr.keys()]
+
+    # Map class numbers → class names
+    classes = [class_names[k] for k in keys]
+
+    plt.figure(figsize=(10,5))
+    plt.bar(classes, counts)
+    plt.xlabel("Class")
+    plt.ylabel("Number of Images")
+    plt.title("Image Distribution per Class")
+    plt.xticks(rotation=30)
+    plt.tight_layout()
+    plt.savefig('class_distribution.png')
+
+
+def plot_metrics(acc, prec, rec, f1):
+    scores = {
+    "Accuracy": acc,
+    "Precision": prec,
+    "Recall": rec,
+    "F1": f1
+    }
+
+    plt.figure(figsize=(6,4))
+    plt.bar(scores.keys(), scores.values())
+    plt.ylabel("Score")
+    plt.ylim(0, 1)
+    plt.title("Overall Evaluation Metrics")
+    plt.savefig('./metrics.png')
+
+
+def plot_cm(cm, class_names):
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm,
+                annot=True,
+                fmt="d",
+                cmap="Blues",
+                xticklabels=class_names,
+                yticklabels=class_names,
+                annot_kws={"size": 12})  # larger numbers inside cells
+
+    plt.xlabel("Predicted", fontsize=14)
+    plt.ylabel("True", fontsize=14)
+    plt.title("Confusion Matrix", fontsize=16)
+
+    plt.xticks(rotation=45, ha="right", fontsize=12)  # rotate x-labels
+    plt.yticks(rotation=0, fontsize=12)               # keep y-labels horizontal
+
+    plt.tight_layout()
+    plt.savefig('confusion_matrix.png')
 
