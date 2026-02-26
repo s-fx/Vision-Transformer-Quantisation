@@ -6,6 +6,13 @@ import seaborn as sns
 from matplotlib.animation import FuncAnimation, PillowWriter
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from src.dino_vit import get_transforms
+from src.dataset.dataset import RetinopathyFullDataset
+from torch.utils.data import DataLoader
+import numpy as np
+import time
+from tqdm import tqdm
+from src.quant.utils import benchmark
 
 
 def accuracy_fn(y_pred, y_true):
@@ -85,7 +92,7 @@ def plot_classes(labels_distr, class_names):
     plt.savefig('class_distribution.png')
 
 
-def plot_metrics(acc, prec, rec, f1):
+def plot_metrics(acc, prec, rec, f1, mode):
     scores = {
     "Accuracy": acc,
     "Precision": prec,
@@ -98,10 +105,10 @@ def plot_metrics(acc, prec, rec, f1):
     plt.ylabel("Score")
     plt.ylim(0, 1)
     plt.title("Overall Evaluation Metrics")
-    plt.savefig('./metrics.png')
+    plt.savefig(f'./metrics_{mode}.png')
 
 
-def plot_cm(cm, class_names):
+def plot_cm(cm, class_names, mode):
     plt.figure(figsize=(10, 8))
     sns.heatmap(cm,
                 annot=True,
@@ -113,11 +120,101 @@ def plot_cm(cm, class_names):
 
     plt.xlabel("Predicted", fontsize=14)
     plt.ylabel("True", fontsize=14)
-    plt.title("Confusion Matrix", fontsize=16)
+    plt.title(f"Confusion Matrix {mode}", fontsize=16)
 
     plt.xticks(rotation=45, ha="right", fontsize=12)  # rotate x-labels
     plt.yticks(rotation=0, fontsize=12)               # keep y-labels horizontal
 
     plt.tight_layout()
-    plt.savefig('confusion_matrix.png')
+    plt.savefig(f'confusion_matrix_{mode}.png')
+
+
+def run_evaluation_retino(model, model_name, root, data_root, params_path, ckpt_path, loss_dict, mode):
+    print(mode)
+    class_names = ['No DR', 'Mild', 'Moderate', 'Severe', 'Proliferative DR']
+
+    #weight_snapshot = os.path.join(root, 'vit_weight_snapshots_100.pt')
+
+    # Plot Loss
+    #plot_loss(loss_dict, './runs/')
+    # Animate Weight Distribution
+    #animate_weight_distr(weight_snapshot)
+
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    else:
+        device = torch.device('cpu')
+
+    print(f'[INFO] Device in use: {device}')
+    print(model)
+
+    if model_name == 'dino':
+        _, val_transforms = get_transforms()
+        dataset_val = RetinopathyFullDataset(data_root, val_transforms, mode='test')
+        test_dataloader = DataLoader(dataset_val, batch_size=1, shuffle=False)
+    else:
+        test_dataloader = load_dataset(data_root)
+
+    all_preds = []
+    all_labels = []
+    labels_distr = {
+        '0': 0,
+        '1': 0,
+        '2': 0,
+        '3': 0,
+        '4': 0
+    }
+
+    print(f'Test Dataset: {len(test_dataloader)}')
+    start_time = time.time()
+    for idx, (image, label) in enumerate(tqdm(test_dataloader)):
+
+        image = image.to(device)
+        label = label.to(device)
+
+        pred_logits = model(image)
+
+        preds = torch.argmax(pred_logits, dim=1)
+        label = label.cpu().numpy().item()
+        preds = preds.cpu().numpy().item()
+        labels_distr[str(label)] += 1
+        all_preds.append(preds)
+        all_labels.append(label)
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f'Time elapsed {elapsed_time}')
+
+    plot_classes(labels_distr, class_names)
+
+    cm = confusion_matrix(all_labels, all_preds)
+    np.save(f'confusion_matrix_{mode}.npy', cm)
+    print(cm)
+
+    # Plot Confusion Matrix
+    plot_cm(cm, class_names, mode)
+
+    # Calculate Accuracy, Precision, Recall, F1
+    acc = accuracy_score(all_labels, all_preds)
+    prec = precision_score(all_labels, all_preds, average='weighted')
+    rec = recall_score(all_labels, all_preds, average='weighted')
+    f1 = f1_score(all_labels, all_preds, average='weighted')
+    plot_metrics(acc, prec, rec, f1, mode)
+
+    print(f"Accuracy {mode}:", acc)
+    print(f"Precision {mode}:", prec)
+    print(f"Recall {mode}:", rec)
+    print(f"F1 {mode}:", f1)
+
+    # Run benchmark
+
+
+    txt_filename = f'./results_{mode}.txt'
+    with open(txt_filename, 'w') as f:
+        f.writelines(f'Total time {elapsed_time}\n')
+        f.writelines(f'Test Dataset {len(test_dataloader)}\n')
+        f.writelines(f'Accuracy {acc}\n')
+        f.writelines(f'Precision {prec}\n')
+        f.writelines(f'Recall {rec}\n')
+        f.writelines(f'F1 {f1}\n')
 

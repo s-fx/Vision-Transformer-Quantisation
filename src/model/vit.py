@@ -53,6 +53,13 @@ def load_model(params_path, ckpt_path, device):
     return model, loss_dict
 
 
+def load_baseline_model(params_path, ckpt_path, device):
+    model, loss_dict = load_model(params_path, ckpt_path, device)
+    model = model.to(torch.bfloat16)
+    model = torch.compile(model, mode='max-autotune')
+    model.to(device)
+    return model, loss_dict
+
 
 if __name__ == '__main__':
     # Testing Patch Embedding

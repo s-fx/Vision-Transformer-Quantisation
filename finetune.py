@@ -5,12 +5,13 @@ from torch.optim.lr_scheduler import LambdaLR
 import torch.optim as optim
 import torch.nn as nn
 
-from src.dataset.dataset import RetinopathyAptosDataset, RetinopathyFullDataset, CIFAR100Dataset
+from src.dataset.dataset import RetinopathyAptosDataset, RetinopathyFullDataset, CIFAR100Dataset, CIFAR10Dataset
 from src.dataset.augmentations import get_augmentations
 from src.model.vit import VisionTransformer
 from src.eval import accuracy_fn, plot_loss
 from src.utils import check_loaded_layers, load_pretrained_vit_weights, compare_state_dicts, compare_weight_distributions, \
         reinit_classification_head
+from src.dino_vit import DinoVisionTransformerClassifier
 
 from tqdm import tqdm
 import pickle
@@ -68,10 +69,14 @@ def main(p):
         dataset_train = RetinopathyFullDataset(data_root, train_transform, mode='train')
         dataset_val = RetinopathyFullDataset(data_root, val_transform, mode='val')
         print('[*] Dataset: Retinopathy')
-    elif 'cifar' in data_root.lower():
+    elif 'cifar-100' in data_root.lower():
         dataset_train = CIFAR100Dataset(data_root, train_transform, mode='train')
         dataset_val = CIFAR100Dataset(data_root, train_transform, mode='val')
         print('[*] Dataset: CIFAR100')
+    elif 'cifar-10' in data_root.lower():
+        dataset_train = CIFAR10Dataset(data_root, train_transform, mode='train')
+        dataset_val = CIFAR10Dataset(data_root, train_transform, mode='val')
+        print('[*] Dataset: CIFAR10')
     else:
         print('No Dataset given. Exit')
         sys.exit()
@@ -273,13 +278,13 @@ if __name__ == '__main__':
     params_dict = {
         # Data
         'num_epochs': 100,
-        'data_root': '/home/s-fx/fun/datasets/retinopathy-full-ds',
-        'batch_size': 64,
+        'data_root': '/home/s-fx/fun/datasets/CIFAR-10-dataset',
+        'batch_size': 128,
         'resume': True,
         # ViT
         'in_channels': 3,
-        'image_size': 224,
-        'patch_size': 16,
+        'image_size': 32,
+        'patch_size': 4,
         'number_of_encoder': 12,
         'embeddings': 768,
         'd_ff_scale': 4,
@@ -287,7 +292,7 @@ if __name__ == '__main__':
         'input_dropout_rate': 0.1,
         'attention_dropout_rate': 0.1,
         'feed_forward_dropout_rate': 0.1,
-        'number_of_classes': 5,
+        'number_of_classes': 10,
         # Optimizer
         'lr': 0.0001,
         'betas': (0.9,0.999),

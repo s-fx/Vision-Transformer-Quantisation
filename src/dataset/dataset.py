@@ -1,3 +1,4 @@
+import sys
 import os
 import glob
 import pandas as pd
@@ -19,6 +20,8 @@ class RetinopathyFullDataset(Dataset):
             self.images = glob.glob(f'{data_root}/val/*/*.jpg')
         elif mode == 'test':
             self.images = glob.glob(f'{data_root}/test/*/*.jpg')
+        elif mode == 'single':
+           self.images = glob.glob(f'{data_root}/single_example/*/*.jpg')
         else:
             print('Wrong mode for dataset creation.')
         #self.to_tensor = v2.ToTensor()
@@ -175,6 +178,18 @@ cifar100_classes = {
     'worm': 99
 }
 
+cifar10_classes = {
+    'airplane': 0,
+    'automobile': 1,
+    'bird': 2,
+    'cat': 3,
+    'deer': 4,
+    'dog': 5,
+    'frog': 6,
+    'horse': 7,
+    'ship': 8,
+    'truck': 9
+}
 
 class CIFAR100Dataset(Dataset):
     def __init__(self, data_root, transform=None, mode='train'):
@@ -186,6 +201,8 @@ class CIFAR100Dataset(Dataset):
             self.images = glob.glob(f'{data_root}/train/*/*.png')
         elif mode == 'val':
             self.images = glob.glob(f'{data_root}/val/*/*.png')
+        elif mode == 'test':
+            self.images = glob.glob(f'{data_root}/test/*/*.jpg')
         else:
             print('Wrong mode for dataset')
         #self.to_tensor = v2.ToTensor()
@@ -206,13 +223,48 @@ class CIFAR100Dataset(Dataset):
         return image, label
 
 
+class CIFAR10Dataset(Dataset):
+    def __init__(self, data_root, transform=None, mode='train'):
+        super().__init__()
+        self.data_root = data_root
+        self.transform = transform
+        self.mode = mode
+        if mode == 'train':
+            self.images = glob.glob(f'{data_root}/train/*/*.jpg')
+        elif mode == 'val':
+            self.images = glob.glob(f'{data_root}/val/*/*.jpg')
+        elif mode == 'test':
+            self.images = glob.glob(f'{data_root}/test/*/*.jpg')
+        else:
+            print('Wrong mode for dataset')
+        #self.to_tensor = v2.ToTensor()
+        self.to_tensor = v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        label = str(image.split('/')[-2])
+        label = int(cifar10_classes[label])
+        image = Image.open(image).convert('RGB')
+        if self.transform is not None:
+            image = self.transform(image)
+        else:
+            image = self.to_tensor(image)
+        return image, label
+
+
 def load_dataset(data_root):
     _, val_transform = get_augmentations(image_size=224)
     if 'retinopathy' in data_root:
         dataset_val = RetinopathyFullDataset(data_root, val_transform, mode='test')
         print('[*] Dataset: Retinopathy')
-    elif 'cifar' in data_root:
-        dataset_val = CIFAR100Dataset(data_root, train_transform, mode='val')
+    elif 'CIFAR-100' in data_root:
+        dataset_val = CIFAR100Dataset(data_root, val_transform, mode='test')
+        print('[*] Dataset: CIFAR100')
+    elif 'CIFAR-10' in data_root:
+        dataset_val = CIFAR10Dataset(data_root, val_transform, mode='test')
         print('[*] Dataset: CIFAR100')
     else:
         print('No Dataset given. Exit')

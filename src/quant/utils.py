@@ -1,6 +1,6 @@
-
-
-
+import os
+import torch
+from torch.utils.benchmark import Timer
 
 def get_model_size(model):
     """
@@ -45,5 +45,28 @@ def get_model_size_bytes(model):
     return param_size + buffer_size
 
 
+@torch.no_grad()
+def benchmark(f, *args, **kwargs):
+    """
+    Benchmarks GPU inference latency and peak memory.
+    Measures memory actively allocated by PyTorch tensors during the benchmark.
+    Not total GPU memory reserved + CUDA context + caching allocator + libraries.
+    allocated memory -> what tensors currently need
+    reserved memory -> what PyTorch asked CUDA for
 
+    Returns:
+        Runtime in ms
+        Peak Memory in GB
+        CUDA reserved memory in GB
+    """
+    for _ in range(3):
+        f(*args, **kwargs)
+        torch.cuda.synchronize()
+
+    torch.cuda.reset_peak_memory_stats()
+    t0 = Timer(
+        stmt="f(*args, **kwargs)", globals={"args": args, "kwargs": kwargs, "f": f}
+    )
+    res = t0.adaptive_autorange(.03, min_run_time=.2, max_run_time=20)
+    return {'time':res.median * 1e3, 'memory': torch.cuda.max_memory_allocated()/1e9, 'reserved': torch.cuda.memory_reserved()/1e9}
 
