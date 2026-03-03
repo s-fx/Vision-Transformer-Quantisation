@@ -5,13 +5,13 @@ import numpy as np
 import umap
 import matplotlib.pyplot as plt
 from src.dino_vit import load_dino, visualise_features, get_transforms
-from src.dataset.dataset import RetinopathyAptosDataset, RetinopathyFullDataset
+from src.dataset.dataset import RetinopathyFullDataset, CIFAR10Dataset
 from torch.utils.data import DataLoader
 
 
 
 reducer = umap.UMAP(
-    n_neighbors=5,
+    n_neighbors=10,
     min_dist=0.1,
     n_components=2,
     metric="cosine"  # better for transformer embeddings
@@ -41,16 +41,16 @@ def extract_features(model, dataloader, device):
 
 
 def main():
-    root = './runs/run_dino_retino_no_backbone'
-    data_root = '/home/s-fx/fun/datasets/retinopathy-full-ds-cleaned'
+    root = './runs/run_dino_cifar_backbone'
+    data_root = '/home/s-fx/fun/datasets/CIFAR-10-dataset'
     params_path = os.path.join(root, 'params.json')
-    ckpt_path = os.path.join(root, 'epoch_32_model.pth')
+    ckpt_path = os.path.join(root, 'epoch_2_model.pth')
     loss_dict = os.path.join(root, 'loss_dict.pkl')
     device = 'cuda'
-    images_path = glob.glob(f'{data_root}/single_example/*/*.jpg')
+    #images_path = glob.glob(f'{data_root}/single_example/*/*.jpg')
     _, val_transform = get_transforms()
 
-    dataset = RetinopathyFullDataset(data_root, val_transform, mode='test')
+    dataset = CIFAR10Dataset(data_root, val_transform, mode='val')
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
 

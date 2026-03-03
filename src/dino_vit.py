@@ -122,9 +122,9 @@ def get_transforms(image_dimension=256): # image dim could be 526
     # Below are functions that every image will be passed through, including data augmentations
     train_transforms = v2.Compose([
                 ResizeAndPad(target_size, 14),
-                v2.RandomRotation(360),
+                #v2.RandomRotation(360),
                 v2.RandomHorizontalFlip(),
-                v2.RandomVerticalFlip(),
+                #v2.RandomVerticalFlip(),
                 v2.ToTensor(),
                 v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
             ])

@@ -259,19 +259,19 @@ def main(p):
 if __name__ == '__main__':
     params_dict = {
         # Data
-        'num_epochs': 20,
-        'data_root': '/home/s-fx/fun/datasets/CIFAR-10-dataset',
+        'num_epochs': 100,
+        'data_root': '/home/s-fx/fun/datasets/retinopathy-full-ds-cleaned',
         'batch_size': 64,
         'resume': False,
         # ViT
-        'number_of_classes': 10,
-        'freeze_backbone': True,
+        'number_of_classes': 5,
+        'freeze_backbone': False,
         # Optimizer
-        'lr': 0.001, # 0.0001
-        'lr_backbone': 0.001,
+        'lr': 1e-3,
+        'lr_backbone': 1e-5,
         'betas': (0.9,0.999),
         'eps': 1e-8,
-        'weight_decay': 0.1
+        'weight_decay': 0.01
     }
 
     with open("runs/params.json", "w") as f:
