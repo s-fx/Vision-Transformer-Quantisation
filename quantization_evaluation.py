@@ -8,9 +8,11 @@ import glob
 
 from src.model.vit import load_model
 from src.dino_vit import load_dino, visualise_features, get_transforms
-from src.quant.quantLayer import replace_linear_layers, QuantizedLinearLayer
+#from src.quant.quantLayer_sym import replace_linear_layers, QuantizedLinearLayer
+from src.quant.quantLayer_asym import replace_linear_layers, QuantizedLinearLayer
 from src.eval import run_evaluation_retino
 from src.quant.utils import get_model_size, calc_model_size_mb, get_model_size_bytes, benchmark
+
 
 def main():
     root = './runs/run_dino_retino_no_backbone'
@@ -28,7 +30,7 @@ def main():
     # ------------ BASE MODEL --------------
     model = load_dino(params_path, ckpt_path, device)
     model.eval()
-    model = torch.compile(model, mode='max-autotune')
+    #model = torch.compile(model, mode='max-autotune')
     print(model)
     get_model_size(model)
     get_model_size_bytes(model)
@@ -46,22 +48,28 @@ def main():
     run_evaluation_retino(model, 'dino', root, data_root, params_path, ckpt_path, loss_dict, mode='base')
 
 
-    # ----------- QUANTISATION -----------
+    # ----------- QUANTISATION SYMETRIC-----------
     print(30*'-')
 
     print(f'\nQuantization')
-    replace_linear_layers(model, QuantizedLinearLayer, [''], quantized=True)
-    model = torch.compile(model, mode='max-autotune')
+    model = load_dino(params_path, ckpt_path, device)
     model.eval()
+    replace_linear_layers(model, QuantizedLinearLayer, [''], quantized=True)
+    #model = torch.compile(model, mode='max-autotune')
     print(model)
     get_model_size(model)
     get_model_size_bytes(model)
 
     model.to(device)
-    model.eval()
+    res = benchmark(model, dummy_image)
+    print(res)
+
+    # Visualise Features
+    for img_path in images_path:
+        visualise_features(model, img_path, device)
 
     # Run Evaluation on Quantised Model (Backbone trained)
-    run_evaluation_retino(model, 'dino', root, data_root, params_path, ckpt_path, loss_dict, mode='quant')
+    run_evaluation_retino(model, 'dino', root, data_root, params_path, ckpt_path, loss_dict, mode='quant_asym')
 
 
 if __name__ == '__main__':

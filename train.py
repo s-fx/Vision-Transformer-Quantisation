@@ -49,7 +49,6 @@ def resume_training(p, model, optimizer, scheduler, device):
     else:
         print("No checkpoint found. Starting fresh training.")
 
-    # Optional: reload the loss_dict.pkl file if you want the full history
     #loss_dict_path = 'runs/loss_dict.pkl'
     #if os.path.exists(loss_dict_path):
     #    with open(loss_dict_path, 'rb') as file:

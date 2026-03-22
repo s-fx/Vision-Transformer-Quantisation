@@ -25,9 +25,6 @@ m = M().eval()
 print(f'Float Model: {m}')
 print(30*'-')
 
-# Step 1. program capture
-# This is available for pytorch 2.6+, for more details on lower pytorch versions
-# please check `Export the model with torch.export` section
 m = torch.export.export(m, example_inputs).module()
 
 # we get a model with aten ops

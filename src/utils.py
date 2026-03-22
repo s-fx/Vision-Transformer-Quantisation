@@ -37,26 +37,26 @@ def check_loaded_layers(model, checkpoint):
             else:
                 mismatched_keys.append(k)
 
-    print("\n📊 --- Checkpoint Load Summary ---")
-    print(f"✅ Matched keys: {len(matched_keys)}")
-    print(f"⚠️ Mismatched keys: {len(mismatched_keys)}")
-    print(f"❌ Missing keys: {len(missing_keys)}")
-    print(f"🌀 Unexpected keys (in checkpoint but not in model): {len(unexpected_keys)}")
+    print("\n--- Checkpoint Load Summary ---")
+    print(f"Matched keys: {len(matched_keys)}")
+    print(f"Mismatched keys: {len(mismatched_keys)}")
+    print(f"Missing keys: {len(missing_keys)}")
+    print(f"Unexpected keys (in checkpoint but not in model): {len(unexpected_keys)}")
 
-    print("\n✅ Sample matched layers:")
+    print("\nSample matched layers:")
     print(" ", matched_keys[:10])
 
     if mismatched_keys:
-        print("\n⚠️ Mismatched layer shapes:")
+        print("\nMismatched layer shapes:")
         for k in mismatched_keys[:10]:
             print(f"  {k}: checkpoint {tuple(checkpoint[k].shape)} != model {tuple(model_dict[k].shape)}")
 
     if missing_keys:
-        print("\n❌ Missing layers (not in checkpoint):")
+        print("\nMissing layers (not in checkpoint):")
         print(" ", missing_keys[:10])
 
     if unexpected_keys:
-        print("\n🌀 Unexpected layers (in checkpoint, not in model):")
+        print("\nUnexpected layers (in checkpoint, not in model):")
         print(" ", unexpected_keys[:10])
 
     print("------------------------------------\n")
@@ -64,13 +64,7 @@ def check_loaded_layers(model, checkpoint):
 
 
 def load_pretrained_vit_weights(custom_vit, pretrained_weights='/home/s-fx/fun/weights/vit_b_16-c867db91.pth'):
-    """
-    Maps and loads pretrained ViT-B/16 ImageNet weights into a custom Vision Transformer
-    that uses split Q/K/V projection layers and ViT-like naming.
-
-    Works directly for image_size=224, patch_size=16 (no interpolation needed).
-    """
-    print("🔄 Loading pretrained ViT-B/16 (ImageNet) weights...")
+    print("Loading pretrained ViT-B/16 (ImageNet) weights...")
     pretrained_dict = torch.load(pretrained_weights, map_location='cpu')
     custom_state = custom_vit.state_dict()
     mapped_dict = {}
@@ -144,10 +138,10 @@ def load_pretrained_vit_weights(custom_vit, pretrained_weights='/home/s-fx/fun/w
         if new_k in custom_state and custom_state[new_k].shape == v.shape:
             mapped_dict[new_k] = v
 
-    print(f"✅ Mapped {len(mapped_dict)} weights to your ViT structure.")
+    print(f"Mapped {len(mapped_dict)} weights to your ViT structure.")
     custom_state.update(mapped_dict)
     custom_vit.load_state_dict(custom_state)
-    print("🎯 Pretrained ViT weights loaded successfully (for 224×224 images).")
+    print("Pretrained ViT weights loaded successfully (for 224×224 images).")
 
     return custom_vit, custom_state, pretrained_dict
 

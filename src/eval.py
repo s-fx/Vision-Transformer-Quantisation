@@ -150,7 +150,7 @@ def run_evaluation_retino(model, model_name, root, data_root, params_path, ckpt_
 
     if model_name == 'dino':
         _, val_transforms = get_transforms()
-        dataset_val = RetinopathyFullDataset(data_root, val_transforms, mode='test')
+        dataset_val = RetinopathyFullDataset(data_root, val_transforms, mode='eval')
         test_dataloader = DataLoader(dataset_val, batch_size=1, shuffle=False)
     else:
         test_dataloader = load_dataset(data_root)
@@ -217,4 +217,4 @@ def run_evaluation_retino(model, model_name, root, data_root, params_path, ckpt_
         f.writelines(f'Precision {prec}\n')
         f.writelines(f'Recall {rec}\n')
         f.writelines(f'F1 {f1}\n')
-
+        f.writelines(f'Len Dataset {len(test_dataloader)}\n')

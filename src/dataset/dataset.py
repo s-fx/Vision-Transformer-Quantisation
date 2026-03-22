@@ -22,6 +22,8 @@ class RetinopathyFullDataset(Dataset):
             self.images = glob.glob(f'{data_root}/test/*/*.jpg')
         elif mode == 'single':
            self.images = glob.glob(f'{data_root}/single_example/*/*.jpg')
+        elif mode == 'eval':
+            self.images = glob.glob(f'{data_root}/eval/*/*.jpg')
         else:
             print('Wrong mode for dataset creation.')
         #self.to_tensor = v2.ToTensor()

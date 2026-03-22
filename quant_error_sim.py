@@ -21,9 +21,7 @@ class DinoQuantizationEvaluator:
         self.activations = {}
         self.stats = defaultdict(list)
 
-    # -------------------------------------------------
     # Fake Quantisierung (symmetrisch)
-    # -------------------------------------------------
     def fake_quant(self, x):
         qmin = -2**(self.bits - 1)
         qmax = 2**(self.bits - 1) - 1
@@ -32,9 +30,6 @@ class DinoQuantizationEvaluator:
         x_q = torch.clamp((x / scale).round(), qmin, qmax)
         return x_q * scale
 
-    # -------------------------------------------------
-    # Hook Registrierung (architektur-spezifisch)
-    # -------------------------------------------------
     def register_hooks(self):
 
         def hook(name):
@@ -93,9 +88,6 @@ class DinoQuantizationEvaluator:
         for h in self.handles:
             h.remove()
 
-    # -------------------------------------------------
-    # Metriken
-    # -------------------------------------------------
     def compute_metrics(self, x, x_q, name):
 
         mse = F.mse_loss(x_q, x).item()
@@ -116,9 +108,7 @@ class DinoQuantizationEvaluator:
             "Range": dynamic_range
         })
 
-    # -------------------------------------------------
     # Softmax Sensitivität
-    # -------------------------------------------------
     def compute_softmax_kl(self, logits):
 
         logits_q = self.fake_quant(logits)
@@ -130,9 +120,6 @@ class DinoQuantizationEvaluator:
 
         self.stats["softmax_KL"].append({"KL": kl})
 
-    # -------------------------------------------------
-    # Evaluation pro Batch
-    # -------------------------------------------------
     def evaluate_batch(self, x):
 
         self.activations = {}
@@ -148,9 +135,6 @@ class DinoQuantizationEvaluator:
         # Softmax Sensitivität (Classifier Output)
         self.compute_softmax_kl(logits)
 
-    # -------------------------------------------------
-    # Aggregation
-    # -------------------------------------------------
     def summarize(self):
 
         summary = {}
@@ -271,9 +255,7 @@ class QuantizationPlotter:
         self.results = results
         self.grouped = self._group_layers()
 
-    # -------------------------------------------------
     # Layer automatisch klassifizieren
-    # -------------------------------------------------
     def _classify_layer(self, name):
 
         if "norm" in name:
@@ -291,9 +273,7 @@ class QuantizationPlotter:
         else:
             return "Other"
 
-    # -------------------------------------------------
     # Nach Block + Typ gruppieren
-    # -------------------------------------------------
     def _group_layers(self):
 
         grouped = defaultdict(lambda: defaultdict(dict))
@@ -310,9 +290,7 @@ class QuantizationPlotter:
 
         return grouped
 
-    # -------------------------------------------------
     # Plot pro Layer-Typ über Blocks
-    # -------------------------------------------------
     def plot_metric_per_block(self, metric="MSE", figname=''):
 
         plt.figure(figsize=(10,6))
@@ -334,9 +312,7 @@ class QuantizationPlotter:
         plt.savefig(figname)
         plt.show()
 
-    # -------------------------------------------------
     # Aggregierter Mittelwert pro Layer-Typ
-    # -------------------------------------------------
     def plot_aggregate_per_type(self, metric="MSE", figname=''):
 
         types = []
@@ -362,9 +338,7 @@ class QuantizationPlotter:
         plt.savefig(figname)
         plt.show()
 
-    # -------------------------------------------------
     # Heatmap (Block × Layer-Type)
-    # -------------------------------------------------
     def plot_heatmap(self, metric="MSE", figname=''):
 
         layer_types = list(self.grouped.keys())
@@ -412,7 +386,6 @@ if __name__ == '__main__':
     model.to(device)
 
 
-    # misst lokale Layer-Sensitivität.=
     evaluator = DinoQuantizationEvaluator(model, device="cuda", bits=8)
     evaluator.register_hooks()
 

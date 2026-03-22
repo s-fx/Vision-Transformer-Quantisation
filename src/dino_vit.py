@@ -119,7 +119,6 @@ def get_transforms(image_dimension=256): # image dim could be 526
     # This is what DinoV2 sees
     target_size = (image_dimension, image_dimension)
 
-    # Below are functions that every image will be passed through, including data augmentations
     train_transforms = v2.Compose([
                 ResizeAndPad(target_size, 14),
                 #v2.RandomRotation(360),

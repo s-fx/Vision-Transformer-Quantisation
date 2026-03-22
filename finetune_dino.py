@@ -262,7 +262,7 @@ if __name__ == '__main__':
         'num_epochs': 100,
         'data_root': '/home/s-fx/fun/datasets/retinopathy-full-ds-cleaned',
         'batch_size': 64,
-        'resume': False,
+        'resume': True,
         # ViT
         'number_of_classes': 5,
         'freeze_backbone': False,
