@@ -8,8 +8,8 @@ import glob
 
 from src.model.vit import load_model
 from src.dino_vit import load_dino, visualise_features, get_transforms
-#from src.quant.quantLayer_sym import replace_linear_layers, QuantizedLinearLayer
-from src.quant.quantLayer_asym import replace_linear_layers, QuantizedLinearLayer
+from src.quant.quantLayer_sym import replace_linear_layers, QuantizedLinearLayer
+#from src.quant.quantLayer_asym import replace_linear_layers, QuantizedLinearLayer
 from src.eval import run_evaluation_retino
 from src.quant.utils import get_model_size, calc_model_size_mb, get_model_size_bytes, benchmark
 

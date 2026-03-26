@@ -117,9 +117,9 @@ def plot_layer_metric(results, title, ylabel, filename):
 
 def main():
 
-    root = './runs/run_dino_cifar_backbone'
+    root = './runs/run_dino_retino_no_backbone'
     params_path = os.path.join(root, 'params.json')
-    ckpt_path = os.path.join(root, 'epoch_2_model.pth')
+    ckpt_path = os.path.join(root, 'epoch_32_model.pth')
     device = 'cuda'
 
     model = load_dino(params_path, ckpt_path, device)

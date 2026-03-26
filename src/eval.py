@@ -4,7 +4,7 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.animation import FuncAnimation, PillowWriter
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from src.dino_vit import get_transforms
 from src.dataset.dataset import RetinopathyFullDataset
@@ -208,7 +208,6 @@ def run_evaluation_retino(model, model_name, root, data_root, params_path, ckpt_
 
     # Run benchmark
 
-
     txt_filename = f'./results_{mode}.txt'
     with open(txt_filename, 'w') as f:
         f.writelines(f'Total time {elapsed_time}\n')
@@ -218,3 +217,6 @@ def run_evaluation_retino(model, model_name, root, data_root, params_path, ckpt_
         f.writelines(f'Recall {rec}\n')
         f.writelines(f'F1 {f1}\n')
         f.writelines(f'Len Dataset {len(test_dataloader)}\n')
+
+    print(f'Mode: {mode}')
+    print(classification_report(all_labels, all_preds, target_names=class_names))

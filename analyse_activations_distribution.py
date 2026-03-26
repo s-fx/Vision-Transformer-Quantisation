@@ -209,10 +209,10 @@ def analyze_vit(model, dataloader, device):
 
 
 def main():
-    root = './runs/run_dino_cifar_backbone'
-    data_root = '/home/s-fx/fun/datasets/CIFAR-10-dataset'
+    root = './runs/run_dino_retino_no_backbone'
+    data_root = '/home/s-fx/fun/datasets/retinopathy-full-ds-cleaned'
     params_path = os.path.join(root, 'params.json')
-    ckpt_path = os.path.join(root, 'epoch_2_model.pth')
+    ckpt_path = os.path.join(root, 'epoch_32_model.pth')
     loss_dict = os.path.join(root, 'loss_dict.pkl')
     device = 'cuda'
     #images_path = glob.glob(f'{data_root}/single_example/*/*.jpg')

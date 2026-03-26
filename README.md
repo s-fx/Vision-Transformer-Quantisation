@@ -1,10 +1,34 @@
 # ViTransformer Classificator
 
-Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kaggle.com/datasets/ascanipek/eyepacs-aptos-messidor-diabetic-retinopathy). The model is pretrained on Imagenet and then finetuned. 
+Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kaggle.com/datasets/ascanipek/eyepacs-aptos-messidor-diabetic-retinopathy).
 
+## Installation
+```bash
+pip install -r requirements.txt
+```
+
+## Model
+The own implementation of a ViT is under the directory src/model/vit.py.
+
+The dinov2 model is under the directory src/dino_vit.py
+
+
+## Dataset Distribution
 **Class Distribution** (class imbalance)
 
 ![Class Distribution](./assets/class_distribution.png)
+
+## Training
+There are 2 finetuning scripts. Training arguments can be changed inside the scripts!
+To train the Vision Transformer:
+```bash
+python3 finetune.py
+```
+
+To train the DINO Vision Transformer:
+```bash
+python3 finetune_dino.py
+```
 
 **Loss**
 
@@ -14,6 +38,28 @@ Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kagg
 
 ![Weight Distribution](./assets/vit_layer_comparison.gif)
 
+
+## Evaluation
+To evaluate the trained model simply set the weights path in the file and run:
+```bash
+python quantization_evaluation.py
+```
+This script automatically runs the evaluation on the FP32 model and creates a quantized Model and runs the 
+evaluation again.
+
+
+## Analyse Weight and Activation Distribution
+To analyse the weight and activation distribution of the model you can run these 2 scripts:
+```bash
+python3 analyse_weights_distribution.py
+python3 analyse_activations_distribution.py
+```
+
+## UMAP
+To create the UMAP analysis run:
+```bash
+python3 umap_features.py
+```
 
 ## Pre-Quantisation
 
@@ -26,30 +72,6 @@ Trained Vision Transformer on the Retinopathy Dataset [Dataset](https://www.kagg
 ![Confusion Matrix](./assets/confusion_matrix.png)
 
 
-## After-Quantisation
-TODO
-
-## Testing
-- High Accuracy ViT Base Model
-- Mid Accuracy ViT Base Model
-- Overfitted ViT Base Model
-- Check if quantisation has regularisation effect on overfitted Model
-- Check how accuracy drops compared to high/mid accuracy models
-- UMAP feature space base model vs quantised model comparision
-
-## TODO
-- [x] Evaluation Script
-- [x] Inference Script
-- [x] Plot Loss
-- [x] Validation Loop
-- [ ] Quantisation 
-- [ ] Test Quantisation
-- [x] Refactor Code
-- [x] Save model parameters during training in txt file
-- [ ] Measure model size, speedup, ...
-- [ ] Fix class imbalance, black borders in images
-- [ ] Visualise Attention Head for prediction of base and quantized model
-- [ ] Apply Roofline model for evaluation
 
 ## Version
 - CUDA 12.6
