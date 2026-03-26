@@ -12,6 +12,11 @@ The own implementation of a ViT is under the directory src/model/vit.py.
 
 The dinov2 model is under the directory src/dino_vit.py
 
+## Quantized Linear Layer
+The implementation of the asymmetric QuantizedLinearLayer is under src/quant/quantLayer_asym.py
+
+The implementation of the symmetric QuantizedLinearLayer is under src/quant/quantLayer_sym.py
+
 
 ## Dataset Distribution
 **Class Distribution** (class imbalance)
