@@ -111,6 +111,7 @@ tiktoken==0.12.0
 tokenizers==0.22.1
 tomli==2.3.0
 torch==2.10.0.dev20251208+cu126
+torchao @ file:///home/s-fx/fun/ai-models/ao
 torchaudio==2.10.0.dev20251208+cu126
 torchvision==0.25.0.dev20251208+cu126
 tqdm==4.67.1

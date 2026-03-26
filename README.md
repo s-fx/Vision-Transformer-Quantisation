@@ -17,7 +17,6 @@ The implementation of the asymmetric QuantizedLinearLayer is under src/quant/qua
 
 The implementation of the symmetric QuantizedLinearLayer is under src/quant/quantLayer_sym.py
 
-
 ## Dataset Distribution
 **Class Distribution** (class imbalance)
 
@@ -52,13 +51,16 @@ python quantization_evaluation.py
 This script automatically runs the evaluation on the FP32 model and creates a quantized Model and runs the 
 evaluation again.
 
-
 ## Analyse Weight and Activation Distribution
 To analyse the weight and activation distribution of the model you can run these 2 scripts:
 ```bash
 python3 analyse_weights_distribution.py
 python3 analyse_activations_distribution.py
 ```
+
+## Block sensitivity
+![MSE](./assets/mse.png)
+![SNR](./assets/snr_dB.png)
 
 ## UMAP
 To create the UMAP analysis run:
