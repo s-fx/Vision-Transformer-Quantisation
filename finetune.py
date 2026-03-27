@@ -278,7 +278,7 @@ if __name__ == '__main__':
     params_dict = {
         # Data
         'num_epochs': 100,
-        'data_root': '/home/s-fx/fun/datasets/retinopathy-full-ds-cleaned,
+        'data_root': '/home/s-fx/fun/datasets/retinopathy-full-ds-cleaned',
         'batch_size': 128,
         'resume': True,
         # ViT
